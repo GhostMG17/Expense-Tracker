@@ -13,7 +13,7 @@ A backend service where a user records their expenses and sees where their money
 | firstname | String |
 | lastname  | String |
 | email     | String | unique                 |
-| phone     | String |
+| phone     | String | optional
 
 ### Category
 | Field | Type    | Notes                                  |
