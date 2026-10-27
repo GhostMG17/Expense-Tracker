@@ -14,6 +14,15 @@ public class CategoryService {
         return categories;
     }
 
+    public Category findById(Long id){
+        for (Category category : categories){
+            if (category.getId().equals(id)){
+                return category;
+            }
+        }
+        return null;
+    }
+
     public Category create(Category category) {
         if (category.getName() == null || category.getName().isBlank()) {
             throw new IllegalArgumentException("Category name can not be empty");

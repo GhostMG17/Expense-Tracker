@@ -15,6 +15,15 @@ public class UserService {
         return users;
     }
 
+    public User findById(Long id){
+        for (User user : users){
+            if (user.getId().equals(id)){
+                return user;
+            }
+        }
+        return null;
+    }
+
     public User createUser(User user) {
         if (user.getEmail() == null || user.getEmail().isBlank()) {
             throw new IllegalArgumentException("Email can not be null or empty.");
