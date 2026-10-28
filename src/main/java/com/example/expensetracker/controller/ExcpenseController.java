@@ -2,11 +2,9 @@ package com.example.expensetracker.controller;
 
 import com.example.expensetracker.entity.Expense;
 import com.example.expensetracker.service.ExpenseService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -25,6 +23,16 @@ public class ExcpenseController {
     @PostMapping("/expenses")
     public Expense createExpense(@RequestBody Expense expense) {
         return expenseService.createExpense(expense);
+    }
+
+    @GetMapping("/expenses/period")
+    public List<Expense> getByUserAndPeriod(
+            @RequestParam Long userId,
+            @RequestParam LocalDate from,
+            @RequestParam LocalDate to) {
+
+        return expenseService.getByUserAndPeriod(userId, from, to);
+
     }
 
 }
