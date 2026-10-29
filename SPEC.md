@@ -13,7 +13,7 @@ A backend service where a user records their expenses and sees where their money
 | firstname | String |
 | lastname  | String |
 | email     | String | unique                 |
-| phone     | String | optional
+| phone     | String | unique                 |      
 
 ### Category
 | Field | Type    | Notes                                  |
@@ -53,6 +53,7 @@ A backend service where a user records their expenses and sees where their money
 - Category name and user email must be unique.
 - Ids are assigned by the server; ids sent by the client are ignored.
 - An expense must reference an existing user and an existing category.
+- User phone is required and unique
 
 ## Out of scope for version 1
 - Authentication and authorization (the user is identified by id).
