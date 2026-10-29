@@ -3,6 +3,9 @@ package com.example.expensetracker.service;
 import com.example.expensetracker.entity.User;
 import org.springframework.stereotype.Service;
 
+import com.example.expensetracker.exception.NotFoundException;
+import com.example.expensetracker.exception.BadRequestException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,16 +24,16 @@ public class UserService {
                 return user;
             }
         }
-        return null;
+        throw new NotFoundException("User not found with id: " + id);
     }
 
     public User createUser(User user) {
         if (user.getEmail() == null || user.getEmail().isBlank()) {
-            throw new IllegalArgumentException("Email can not be null or empty.");
+            throw new BadRequestException("Email can not be null or empty.");
         }
 
         if (!user.getEmail().contains("@")) {
-            throw new IllegalArgumentException("Email should contain '@' symbol.");
+            throw new BadRequestException("Email should contain '@' symbol.");
         }
 
         boolean emailExists = false;
@@ -43,7 +46,7 @@ public class UserService {
         }
 
         if (emailExists) {
-            throw new IllegalArgumentException("A user with this email already exists.");
+            throw new BadRequestException("A user with this email already exists.");
         }
 
         User newUser = new User(users.size() + 1L, user.getFirstname(), user.getLastname(),

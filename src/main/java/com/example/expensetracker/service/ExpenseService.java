@@ -1,6 +1,8 @@
 package com.example.expensetracker.service;
 
 import com.example.expensetracker.entity.Expense;
+import com.example.expensetracker.exception.BadRequestException;
+import com.example.expensetracker.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,32 +30,27 @@ public class ExpenseService {
     public Expense createExpense(Expense expense) {
 
         if (expense.getAmount() == null || expense.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Amount can not be zero or negative");
+            throw new BadRequestException("Amount can not be zero or negative");
         }
 
         if (expense.getDate() == null) {
-            throw new IllegalArgumentException("Date can not be null");
+            throw new BadRequestException("Date can not be null");
         }
 
         if (expense.getDate().isAfter(LocalDate.now())) {
-            throw new IllegalArgumentException("Date can not be in the future");
+            throw new BadRequestException("Date can not be in the future");
         }
 
         if (expense.getUserId() == null) {
-            throw new IllegalArgumentException("No user found for this expense");
+            throw new NotFoundException("No user found for this expense");
         }
 
         if (expense.getCategoryId() == null) {
-            throw new IllegalArgumentException("No category found for this expense");
+            throw new NotFoundException("No category found for this expense");
         }
 
-        if (userService.findById(expense.getUserId()) == null) {
-            throw new IllegalArgumentException("User not found.");
-        }
-
-        if (categoryService.findById(expense.getCategoryId()) == null) {
-            throw new IllegalArgumentException("Category not found");
-        }
+        userService.findById(expense.getUserId());
+        categoryService.findById(expense.getCategoryId());
 
         Expense newExpense = new Expense(expenses.size() + 1L, expense.getAmount(),
                 expense.getDate(), expense.getDescription(), expense.getUserId(), expense.getCategoryId());
@@ -63,16 +60,18 @@ public class ExpenseService {
 
     public List<Expense> getByUserAndPeriod(Long userId, LocalDate from, LocalDate to) {
 
-        if (userService.findById(userId) == null) {
-            throw new IllegalArgumentException("User not found.");
+        if (userId == null) {
+            throw new BadRequestException("User id cannot be null.");
         }
 
+        userService.findById(userId);
+
         if (from == null || to == null) {
-            throw new IllegalArgumentException("Date should be filled.");
+            throw new BadRequestException("Date should be filled.");
         }
 
         if (from.isAfter(to)) {
-            throw new IllegalArgumentException("From must not be after to.");
+            throw new BadRequestException("From must not be after to.");
         }
 
         return expenses.stream()
@@ -83,6 +82,10 @@ public class ExpenseService {
     }
 
     public Map<Long, BigDecimal> getExpensesReport(Long userId, YearMonth month) {
+        if (month == null){
+            throw new BadRequestException("Month cannot be null.");
+        }
+
         LocalDate from = month.atDay(1);
         LocalDate to = month.atEndOfMonth();
         List<Expense> expenseList = getByUserAndPeriod(userId, from, to);

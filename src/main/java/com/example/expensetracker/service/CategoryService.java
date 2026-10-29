@@ -1,6 +1,8 @@
 package com.example.expensetracker.service;
 
 import com.example.expensetracker.entity.Category;
+import com.example.expensetracker.exception.BadRequestException;
+import com.example.expensetracker.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,19 +22,19 @@ public class CategoryService {
                 return category;
             }
         }
-        return null;
+        throw new NotFoundException("Category not found with id: " + id);
     }
 
     public Category create(Category category) {
         if (category.getName() == null || category.getName().isBlank()) {
-            throw new IllegalArgumentException("Category name can not be empty");
+            throw new BadRequestException("Category name can not be empty");
         }
 
         boolean nameExists = categories.stream()
                 .anyMatch(c -> category.getName().equalsIgnoreCase(c.getName()));
 
         if (nameExists) {
-            throw new IllegalArgumentException("Category with this name already exists");
+            throw new BadRequestException("Category with this name already exists");
         }
 
         Category newCategory = new Category(categories.size() + 1L, category.getName());
