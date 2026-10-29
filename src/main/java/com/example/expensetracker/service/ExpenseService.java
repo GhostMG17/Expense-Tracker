@@ -5,9 +5,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.time.YearMonth;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -77,10 +76,36 @@ public class ExpenseService {
         }
 
         return expenses.stream()
-                .filter(u -> Objects.equals(u.getUserId(),userId)
+                .filter(u -> Objects.equals(u.getUserId(), userId)
                         && !u.getDate().isBefore(from)
                         && !u.getDate().isAfter(to))
                 .collect(Collectors.toList());
+    }
+
+    public Map<Long, BigDecimal> getExpensesReport(Long userId, YearMonth month) {
+        LocalDate from = month.atDay(1);
+        LocalDate to = month.atEndOfMonth();
+        List<Expense> expenseList = getByUserAndPeriod(userId, from, to);
+
+        Map<Long, BigDecimal> report = new HashMap<>();
+
+        for (Expense expense : expenseList) {
+            Long catId = expense.getCategoryId();
+            BigDecimal amount = expense.getAmount();
+
+            BigDecimal currentAmount = report.get(catId);
+
+            if (currentAmount == null) {
+                currentAmount = BigDecimal.ZERO;
+            }
+
+            BigDecimal result = amount.add(currentAmount);
+
+            report.put(catId, result);
+        }
+
+        return report;
+
     }
 
 }
