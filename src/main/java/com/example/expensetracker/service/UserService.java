@@ -49,6 +49,10 @@ public class UserService {
             throw new BadRequestException("A user with this email already exists.");
         }
 
+        if (user.getPhone() == null || user.getPhone().isBlank()){
+            throw new BadRequestException("Number cannot be null or empty.");
+        }
+
         User newUser = new User(users.size() + 1L, user.getFirstname(), user.getLastname(),
                 user.getEmail(), user.getPhone());
 

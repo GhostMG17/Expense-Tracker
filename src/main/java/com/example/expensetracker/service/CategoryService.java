@@ -3,26 +3,26 @@ package com.example.expensetracker.service;
 import com.example.expensetracker.entity.Category;
 import com.example.expensetracker.exception.BadRequestException;
 import com.example.expensetracker.exception.NotFoundException;
+import com.example.expensetracker.repository.CategoryRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class CategoryService {
-    private List<Category> categories = new ArrayList<>();
+    private final CategoryRepository categoryRepository;
+
+    public CategoryService(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
+    }
 
     public List<Category> getAllCategories() {
-        return categories;
+        return categoryRepository.findAll();
     }
 
     public Category findById(Long id){
-        for (Category category : categories){
-            if (category.getId().equals(id)){
-                return category;
-            }
-        }
-        throw new NotFoundException("Category not found with id: " + id);
+        return categoryRepository.findById(id).
+                orElseThrow(()-> new NotFoundException("Category not found with id: " + id));
     }
 
     public Category create(Category category) {
@@ -30,15 +30,12 @@ public class CategoryService {
             throw new BadRequestException("Category name can not be empty");
         }
 
-        boolean nameExists = categories.stream()
-                .anyMatch(c -> category.getName().equalsIgnoreCase(c.getName()));
-
-        if (nameExists) {
+        if (categoryRepository.existsByNameIgnoreCase(category.getName())){
             throw new BadRequestException("Category with this name already exists");
         }
 
-        Category newCategory = new Category(categories.size() + 1L, category.getName());
-        categories.add(newCategory);
+        Category newCategory = new Category(null, category.getName());
+        categoryRepository.save(newCategory);
         return newCategory;
 
     }
