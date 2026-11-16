@@ -3,6 +3,7 @@ package com.example.expensetracker.service;
 import com.example.expensetracker.entity.Expense;
 import com.example.expensetracker.exception.BadRequestException;
 import com.example.expensetracker.exception.NotFoundException;
+import com.example.expensetracker.repository.ExpenseRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -14,17 +15,18 @@ import java.util.stream.Collectors;
 @Service
 public class ExpenseService {
 
-    private List<Expense> expenses = new ArrayList<>();
+    private final ExpenseRepository expenseRepository;
     private final UserService userService;
     private final CategoryService categoryService;
 
-    public ExpenseService(UserService userService, CategoryService categoryService) {
+    public ExpenseService(ExpenseRepository expenseRepository, UserService userService, CategoryService categoryService) {
+        this.expenseRepository = expenseRepository;
         this.userService = userService;
         this.categoryService = categoryService;
     }
 
     public List<Expense> getAllExpenses() {
-        return expenses;
+        return expenseRepository.findAll();
     }
 
     public Expense createExpense(Expense expense) {
@@ -52,10 +54,10 @@ public class ExpenseService {
         userService.findById(expense.getUserId());
         categoryService.findById(expense.getCategoryId());
 
-        Expense newExpense = new Expense(expenses.size() + 1L, expense.getAmount(),
+        Expense newExpense = new Expense(null, expense.getAmount(),
                 expense.getDate(), expense.getDescription(), expense.getUserId(), expense.getCategoryId());
-        expenses.add(newExpense);
-        return newExpense;
+
+        return expenseRepository.save(newExpense);
     }
 
     public List<Expense> getByUserAndPeriod(Long userId, LocalDate from, LocalDate to) {
@@ -74,15 +76,11 @@ public class ExpenseService {
             throw new BadRequestException("From must not be after to.");
         }
 
-        return expenses.stream()
-                .filter(u -> Objects.equals(u.getUserId(), userId)
-                        && !u.getDate().isBefore(from)
-                        && !u.getDate().isAfter(to))
-                .collect(Collectors.toList());
+        return expenseRepository.findByUserIdAndDateBetween(userId, from, to);
     }
 
     public Map<Long, BigDecimal> getExpensesReport(Long userId, YearMonth month) {
-        if (month == null){
+        if (month == null) {
             throw new BadRequestException("Month cannot be null.");
         }
 
