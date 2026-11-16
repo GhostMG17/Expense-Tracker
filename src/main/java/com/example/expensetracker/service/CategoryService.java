@@ -35,8 +35,7 @@ public class CategoryService {
         }
 
         Category newCategory = new Category(null, category.getName());
-        categoryRepository.save(newCategory);
-        return newCategory;
+        return categoryRepository.save(newCategory);
 
     }
 }

@@ -1,30 +1,29 @@
 package com.example.expensetracker.service;
 
 import com.example.expensetracker.entity.User;
+import com.example.expensetracker.exception.BadRequestException;
+import com.example.expensetracker.exception.NotFoundException;
+import com.example.expensetracker.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
-import com.example.expensetracker.exception.NotFoundException;
-import com.example.expensetracker.exception.BadRequestException;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class UserService {
 
-    private List<User> users = new ArrayList<>();
+    private final UserRepository userRepository;
 
-    public List<User> getAllUsers() {
-        return users;
+    public UserService(UserRepository userRepository){
+        this.userRepository = userRepository;
     }
 
     public User findById(Long id){
-        for (User user : users){
-            if (user.getId().equals(id)){
-                return user;
-            }
-        }
-        throw new NotFoundException("User not found with id: " + id);
+        return userRepository.findById(id).
+                orElseThrow(() -> new NotFoundException("User not found with id: " + id));
+    }
+
+    public List<User> getAllUsers(){
+        return userRepository.findAll();
     }
 
     public User createUser(User user) {
@@ -36,16 +35,7 @@ public class UserService {
             throw new BadRequestException("Email should contain '@' symbol.");
         }
 
-        boolean emailExists = false;
-
-        for (User u : users) {
-            if (user.getEmail().equalsIgnoreCase(u.getEmail())) {
-                emailExists = true;
-                break;
-            }
-        }
-
-        if (emailExists) {
+        if (userRepository.existsByEmailIgnoreCase(user.getEmail())) {
             throw new BadRequestException("A user with this email already exists.");
         }
 
@@ -53,11 +43,14 @@ public class UserService {
             throw new BadRequestException("Number cannot be null or empty.");
         }
 
-        User newUser = new User(users.size() + 1L, user.getFirstname(), user.getLastname(),
+        if (userRepository.existsByPhone(user.getPhone())) {
+            throw new BadRequestException("A user with this phone already exists");
+        }
+
+        User newUser = new User(null, user.getFirstname(), user.getLastname(),
                 user.getEmail(), user.getPhone());
 
-        users.add(newUser);
-        return newUser;
+        return userRepository.save(newUser);
 
     }
 
