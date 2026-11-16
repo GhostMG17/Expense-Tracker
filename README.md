@@ -29,31 +29,6 @@ docker run --name expense-db \
 The API is available at `http://localhost:8080`. Tables are created automatically on the first start.
 
 ## Endpoints
-| Method | Path | Description |
-|---|---|---|
-| GET | `/categories` | List categories |
-| POST | `/categories` | Create a category |
-| GET | `/users` | List users |
-| POST | `/users` | Create a user |
-| GET | `/expenses` | List all expenses |
-| POST | `/expenses` | Add an expense |
-| GET | `/expenses/period?userId=&from=&to=` | A user's expenses for a period (inclusive) |
-| GET | `/expenses/report?userId=&month=` | A user's total per category for a month |
-
-### Examples
-
-Create a user:
-
-```json
-{ "firstname": "Ali", "lastname": "Valiev", "email": "ali@example.com", "phone": "+998901234567" }
-```
-
-Add an expense:
-
-```json
-{ "amount": 15000, "date": "2026-11-01", "description": "Lunch", "userId": 1, "categoryId": 1 }
-```
-
 
 | Method | Path | Description |
 |---|---|---|
